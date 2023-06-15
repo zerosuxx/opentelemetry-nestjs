@@ -327,24 +327,36 @@ Also, you can find different exporters [here](https://opentelemetry.io/docs/js/e
 
 ```ts
 import { Module } from '@nestjs/common';
-import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OpenTelemetryModule } from '@overbit/opentelemetry-nestjs';
-import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
+import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { CompositePropagator } from '@opentelemetry/core';
+import { JaegerPropagator } from '@opentelemetry/propagator-jaeger';
+import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
 
 @Module({
   imports: [
     OpenTelemetryModule.forRoot({
-      serviceName: 'nestjs-opentelemetry-example',
+      serviceName: 'myservice-opentelemetry-example',
       metricReader: new PrometheusExporter({
         endpoint: 'metrics',
         port: 9464,
       }),
-      spanProcessor: new SimpleSpanProcessor(
-        new ZipkinExporter({
-          url: 'your-zipkin-url',
-        }),
+      spanProcessor: new BatchSpanProcessor(
+        new new OTLPTraceExporter({
+          url: 'your-jaeger-url',
+        })(),
       ),
+      textMapPropagator: new CompositePropagator({
+        propagators: [
+          new JaegerPropagator(),
+          new B3Propagator(),
+          new B3Propagator({
+            injectEncoding: B3InjectEncoding.MULTI_HEADER,
+          }),
+        ],
+      }),
     }),
   ],
 })
