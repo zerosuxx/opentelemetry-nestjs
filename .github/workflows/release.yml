@@ -1,8 +1,7 @@
 name: Publish Package to npmjs
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,7 +20,9 @@ jobs:
         with:
           node-version: 'lts/*'
       - name: Install dependencies
-        run: npm clean-install
+        run: npm ci
+      - run: npm run lint
+      - run: npm run test:cov
       - run: npm run build
       - name: Release
         env:
