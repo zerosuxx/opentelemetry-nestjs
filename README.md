@@ -323,11 +323,11 @@ Also, you can find different exporters [here](https://opentelemetry.io/docs/js/e
 
 ---
 
-## Let's Combine All of them
+## Examples
 
 ```ts
 import { Module } from '@nestjs/common';
-import { OpenTelemetryModule } from '@overbit/opentelemetry-nestjs';
+import type { OpenTelemetryModule } from '@overbit/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
@@ -344,9 +344,9 @@ import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
         port: 9464,
       }),
       spanProcessor: new BatchSpanProcessor(
-        new new OTLPTraceExporter({
+        new OTLPTraceExporter({
           url: 'your-jaeger-url',
-        })(),
+        }),
       ),
       textMapPropagator: new CompositePropagator({
         propagators: [
@@ -357,6 +357,50 @@ import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
           }),
         ],
       }),
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+### AWS XRay
+
+For the integration with AWS X-Ray, follow the official instructions.
+
+i.e.
+
+```ts
+import { Module } from '@nestjs/common';
+import type {
+  OpenTelemetryModule,
+  OpenTelemetryModuleDefaultConfig,
+} from '@overbit/opentelemetry-nestjs';
+import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
+import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { CompositePropagator } from '@opentelemetry/core';
+import { AWSXRayPropagator } from '@opentelemetry/propagator-aws-xray';
+import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray';
+import { AwsInstrumentation } from '@opentelemetry/instrumentation-aws-sdk';
+
+@Module({
+  imports: [
+    OpenTelemetryModule.forRoot({
+      serviceName: 'myservice-opentelemetry-example',
+      metricReader: new PrometheusExporter({
+        endpoint: 'metrics',
+        port: 9464,
+      }),
+      instrumentations: [
+        ...OpenTelemetryModuleDefaultConfig.instrumentations,
+        new AwsInstrumentation({
+          suppressInternalInstrumentation: true,
+          sqsExtractContextPropagationFromPayload: true,
+        }),
+      ],
+      idGenerator: new AWSXRayIdGenerator(),
+      spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({})),
+      textMapPropagator: new AWSXRayPropagator(),
     }),
   ],
 })
