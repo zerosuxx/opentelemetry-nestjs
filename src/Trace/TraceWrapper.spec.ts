@@ -1,11 +1,9 @@
 /* eslint-disable no-console */
-import { trace } from '@opentelemetry/api';
 import { TraceWrapper } from './TraceWrapper';
 import { ILogger } from './Logger.interface';
+import { Span } from '@opentelemetry/sdk-trace-base';
 
 import 'reflect-metadata';
-
-jest.mock('@opentelemetry/api');
 
 export const MockedLogger: ILogger = {
   debug: jest.fn(),
@@ -19,61 +17,93 @@ class TestClass {
     console.log('test');
   }
 
-  private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
   async testMethodAsync(
     startMessage: string,
     endMessage: string,
-  ): Promise<void> {
+  ): Promise<string> {
     console.log(startMessage);
-    await this.sleep(10);
+    await new Promise((resolve) => setTimeout(resolve, 1));
     console.log(endMessage);
+
+    return 'testMethodAsync completed';
   }
 }
 
+jest.spyOn(console, 'log').mockImplementation(() => {
+  return;
+});
+jest.spyOn(console, 'debug').mockImplementation(() => {
+  return;
+});
+
 describe('TraceWrapper', () => {
-  let traceSpy: jest.SpyInstance;
-  let mockedSpanStart: jest.Mock;
-  let mockedSpanEnd: jest.Mock;
-  let mockedSpanSetAtteributes: jest.Mock;
-  const spanEndedMessage = 'span ended';
+  let instance: TestClass;
+  let loggerMock;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    instance = new TestClass();
 
-    traceSpy = jest.spyOn(trace, 'getTracer');
-    mockedSpanEnd = jest.fn().mockImplementation(() => {
-      console.log(spanEndedMessage);
-    });
-
-    mockedSpanSetAtteributes = jest.fn();
-    mockedSpanStart = jest.fn().mockReturnValue({
-      end: mockedSpanEnd,
-      setAttributes: mockedSpanSetAtteributes,
-    });
-    traceSpy.mockReturnValue({
-      startActiveSpan: mockedSpanStart,
-    });
+    loggerMock = {
+      debug: jest.fn(),
+    };
   });
 
-  it('should trace all methods for a given instance', async () => {
-    const target = TraceWrapper.trace(new TestClass(), MockedLogger);
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-    target.testMethod();
-    await target.testMethodAsync('start', 'end');
+  describe('trace', () => {
+    it('should trace all methods in the class', () => {
+      const wrapSpy = jest.spyOn(TraceWrapper, 'wrap');
+      const tracedInstance = TraceWrapper.trace(instance, loggerMock);
 
-    expect(mockedSpanStart).toHaveBeenCalledTimes(2);
-    expect(mockedSpanStart).toHaveBeenNthCalledWith(
-      1,
-      'TestClass.testMethod',
-      expect.anything(),
-    );
-    expect(mockedSpanStart).toHaveBeenNthCalledWith(
-      2,
-      'TestClass.testMethodAsync',
-      expect.anything(),
-    );
+      expect(tracedInstance).toBe(instance);
+
+      expect(wrapSpy).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ name: 'testMethod' }),
+        'TestClass.testMethod',
+        { class: 'TestClass', method: 'testMethod' },
+      );
+      expect(wrapSpy).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ name: 'testMethodAsync' }),
+        'TestClass.testMethodAsync',
+        expect.anything(),
+      );
+
+      expect(tracedInstance.testMethod).toBe(instance.testMethod);
+      expect(tracedInstance.testMethodAsync).toBe(instance.testMethodAsync);
+    });
+
+    it('should use console as the default logger', () => {
+      jest.spyOn(TraceWrapper, 'wrap').mockReturnValue(instance.testMethod);
+      const consoleSpy = jest.spyOn(console, 'debug');
+
+      const tracedInstance = TraceWrapper.trace(instance);
+
+      expect(tracedInstance).toBe(instance);
+
+      expect(consoleSpy).toHaveBeenCalledWith('Mapped TestClass.testMethod', {
+        class: 'TestClass',
+        method: 'testMethod',
+      });
+    });
+
+    it('should wrap an function transparently', async () => {
+      const original = new TestClass();
+      const wrapped = TraceWrapper.trace(new TestClass(), MockedLogger);
+
+      const originalSyncResult = original.testMethod();
+      const wrappedSyncResult = wrapped.testMethod();
+      const originalAsyncResult = await original.testMethodAsync(
+        'start',
+        'end',
+      );
+      const wrappedAsyncResult = await wrapped.testMethodAsync('start', 'end');
+
+      expect(originalSyncResult).toStrictEqual(wrappedSyncResult);
+      expect(originalAsyncResult).toStrictEqual(wrappedAsyncResult);
+    });
   });
 });
