@@ -45,7 +45,7 @@ export class TraceWrapper {
     prototype: Record<any, any>,
     traceName: string,
     attributes = {},
-  ) {
+  ): Record<any, any> {
     let method;
 
     if (prototype.constructor.name === 'AsyncFunction') {
@@ -53,6 +53,7 @@ export class TraceWrapper {
         [prototype.name]: async function (...args: unknown[]) {
           const tracer = trace.getTracer('default');
           return await tracer.startActiveSpan(traceName, async (span) => {
+            span.setAttributes(attributes);
             return prototype
               .apply(this, args)
               .catch((error) => TraceWrapper.recordException(error, span))
