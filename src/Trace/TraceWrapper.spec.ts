@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { TraceWrapper } from './TraceWrapper';
 import { ILogger } from './Logger.interface';
-import { Span } from '@opentelemetry/sdk-trace-base';
 
 import 'reflect-metadata';
 
@@ -41,19 +40,19 @@ describe('TraceWrapper', () => {
   let loggerMock;
 
   beforeEach(() => {
-    instance = new TestClass();
-
-    loggerMock = {
-      debug: jest.fn(),
-    };
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
   });
 
   describe('trace', () => {
+    beforeEach(() => {
+      loggerMock = {
+        debug: jest.fn(),
+      };
+    });
+
     it('should trace all methods in the class', () => {
+      instance = new TestClass();
+
       const wrapSpy = jest.spyOn(TraceWrapper, 'wrap');
       const tracedInstance = TraceWrapper.trace(instance, loggerMock);
 
@@ -77,6 +76,8 @@ describe('TraceWrapper', () => {
     });
 
     it('should use console as the default logger', () => {
+      instance = new TestClass();
+
       jest.spyOn(TraceWrapper, 'wrap').mockReturnValue(instance.testMethod);
       const consoleSpy = jest.spyOn(console, 'debug');
 
@@ -92,7 +93,10 @@ describe('TraceWrapper', () => {
 
     it('should wrap an function transparently', async () => {
       const original = new TestClass();
-      const wrapped = TraceWrapper.trace(new TestClass(), MockedLogger);
+      const wrapped = TraceWrapper.trace(original, {
+        attributes: {},
+        logger: MockedLogger,
+      });
 
       const originalSyncResult = original.testMethod();
       const wrappedSyncResult = wrapped.testMethod();
@@ -103,7 +107,7 @@ describe('TraceWrapper', () => {
       const wrappedAsyncResult = await wrapped.testMethodAsync('start', 'end');
 
       expect(originalSyncResult).toStrictEqual(wrappedSyncResult);
-      expect(originalAsyncResult).toStrictEqual(wrappedAsyncResult);
+      expect(originalAsyncResult).toBe(wrappedAsyncResult);
     });
   });
 });

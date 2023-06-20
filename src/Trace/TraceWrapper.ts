@@ -2,26 +2,36 @@ import { Span, SpanStatusCode, trace } from '@opentelemetry/api';
 import { Constants } from '../Constants';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import type { ILogger } from './Logger.interface';
+import { TraceWrapperOptions } from './TraceWrapper.types';
 
 export class TraceWrapper {
   /**
    * Trace a class by wrapping all methods in a trace segment
    * @param instance Instance of the class to trace
-   * @param logger Logger to use for debugging logs. Defaults to console
+   * @param options @ Options for the trace
    * @returns The traced instance of the class
    */
-  static trace<T>(instance: T, logger?: ILogger): T {
-    logger = logger ?? console;
+
+  /**
+   * Trace a class by wrapping all methods in a trace segment
+   * @param instance Instance of the class to trace
+   * @param options @type {TraceWrapperOptions} Options for the trace
+   * @returns The traced instance of the class
+
+   */
+  static trace<T>(instance: T, options?: TraceWrapperOptions): T {
+    const logger = options?.logger ?? console;
     const keys = new MetadataScanner().getAllMethodNames(
       instance.constructor.prototype,
     );
     for (const key of keys) {
       const defaultTraceName = `${instance.constructor.name}.${instance[key].name}`;
-      const method = this.wrap(instance[key], defaultTraceName, {
+      const method = TraceWrapper.wrap(instance[key], defaultTraceName, {
         class: instance.constructor.name,
         method: instance[key].name,
+        ...(options?.attributes ?? {}),
       });
-      this.reDecorate(instance[key], method);
+      TraceWrapper.reDecorate(instance[key], method);
 
       instance[key] = method;
       logger.debug(`Mapped ${instance.constructor.name}.${key}`, {
@@ -68,7 +78,6 @@ export class TraceWrapper {
         [prototype.name]: function (...args: unknown[]) {
           const tracer = trace.getTracer('default');
           return tracer.startActiveSpan(traceName, (span) => {
-            span.setAttributes(attributes);
             try {
               span.setAttributes(attributes);
               return prototype.apply(this, args);
@@ -83,8 +92,8 @@ export class TraceWrapper {
     }
 
     Reflect.defineMetadata(Constants.TRACE_METADATA, traceName, method);
-    this.affect(method);
-    this.reDecorate(prototype, method);
+    TraceWrapper.affect(method);
+    TraceWrapper.reDecorate(prototype, method);
 
     return method;
   }
