@@ -1,9 +1,8 @@
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-  roots: ['<rootDir>/src'],
-  transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
-  },
+  preset: 'ts-jest',
   testEnvironment: 'node',
+  roots: ['<rootDir>/src'],
   coverageThreshold: {
     global: {
       branches: 80,
