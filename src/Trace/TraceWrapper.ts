@@ -8,16 +8,8 @@ export class TraceWrapper {
   /**
    * Trace a class by wrapping all methods in a trace segment
    * @param instance Instance of the class to trace
-   * @param options @ Options for the trace
-   * @returns The traced instance of the class
-   */
-
-  /**
-   * Trace a class by wrapping all methods in a trace segment
-   * @param instance Instance of the class to trace
    * @param options @type {TraceWrapperOptions} Options for the trace
    * @returns The traced instance of the class
-
    */
   static trace<T>(instance: T, options?: TraceWrapperOptions): T {
     const logger = options?.logger ?? console;
