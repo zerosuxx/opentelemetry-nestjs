@@ -1,13 +1,13 @@
 {
-  "name": "@overbit/opentelemetry-nestjs",
+  "name": "@amplication/opentelemetry-nestjs",
   "version": "0.0.0-development",
-  "description": "OpenTelemetry module for Nestjs with auto instrumentation and resource detection. Initially forked from https://github.com/MetinSeylan/Nestjs-OpenTelemetry",
+  "description": "OpenTelemetry module for Nestjs with auto instrumentation and resource detection. Initially forked from https://github.com/overbit/opentelemetry-nestjs.git",
   "author": "Daniele Iasella <2861984+overbit@users.noreply.github.com>",
   "license": "MIT",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/overbit/opentelemetry-nestjs.git"
+    "url": "https://github.com/amplication/opentelemetry-nestjs.git"
   },
   "release": {
     "branches": [
@@ -27,9 +27,9 @@
     "opencensus"
   ],
   "bugs": {
-    "url": "https://github.com/overbit/opentelemetry-nestjs/issues"
+    "url": "https://github.com/amplication/opentelemetry-nestjs/issues"
   },
-  "homepage": "https://github.com/overbit/opentelemetry-nestjs#readme",
+  "homepage": "https://github.com/amplication/opentelemetry-nestjs#readme",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",

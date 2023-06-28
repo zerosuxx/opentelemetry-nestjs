@@ -1,12 +1,12 @@
 # NestJS OpenTelemetry
 
 <p align="center">
-<a href="https://www.npmjs.com/package/@overbit/opentelemetry-nestjs"><img src="https://img.shields.io/npm/v/@overbit/opentelemetry-nestjs.svg"/> <img src="https://img.shields.io/npm/dt/@overbit/opentelemetry-nestjs.svg"/></a>
+<a href="https://www.npmjs.com/package/@amplication/opentelemetry-nestjs"><img src="https://img.shields.io/npm/v/@amplication/opentelemetry-nestjs.svg"/> <img src="https://img.shields.io/npm/dt/@amplication/opentelemetry-nestjs.svg"/></a>
 <a href="https://github.com/overbit/opentelemetry-nestjs"><img src="https://img.shields.io/npm/l/@overbit/opentelemetry-nestjs.svg"/></a>
 <a href="https://github.com/overbit/opentelemetry-nestjs"><img src="https://img.shields.io/github/stars/overbit/opentelemetry-nestjs.svg"/></a>
 </p>
 
-This library, initially forked from [@metinseylan/nestjs-opentelemetry](https://github.com/MetinSeylan/Nestjs-OpenTelemetry) (whom it goes a big thank you), provides deeply integrated protocol-agnostic Nestjs [OpenTelemetry](https://opentelemetry.io/) instrumentations, metrics and SDK.
+This library, initially forked from [@overbit/opentelemetry-nestjs](https://github.com/overbit/opentelemetry-nestjs.git), provides deeply integrated protocol-agnostic Nestjs [OpenTelemetry](https://opentelemetry.io/) instrumentations, metrics and SDK.
 
 ## Description
 
@@ -36,7 +36,7 @@ Competability table for Nestjs versions.
 ## Installation
 
 ```bash
-npm install @overbit/opentelemetry-nestjs --save
+npm install @amplication/opentelemetry-nestjs --save
 ```
 
 ---
@@ -46,7 +46,7 @@ npm install @overbit/opentelemetry-nestjs --save
 This is a basic configuration without any trace and metric exporter, but includes default metrics and injectors
 
 ```ts
-import { OpenTelemetryModule } from '@overbit/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
 
 @Module({
   imports: [
@@ -61,7 +61,7 @@ export class AppModule {}
 Async configuration example
 
 ```ts
-import { OpenTelemetryModule } from '@overbit/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
@@ -132,7 +132,7 @@ export class AppModule {}
 Simple setup with Zipkin exporter, including with default trace instrumentations.
 
 ```ts
-import { OpenTelemetryModule } from '@overbit/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
 import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 
@@ -166,7 +166,7 @@ This library supports auto instrumentations for Nestjs layers, but sometimes you
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { Span } from '@overbit/opentelemetry-nestjs';
+import { Span } from '@amplication/opentelemetry-nestjs';
 
 @Injectable()
 export class AppService {
@@ -189,7 +189,7 @@ Also `@Span` decorator takes `name` field as a parameter
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { Traceable } from '@overbit/opentelemetry-nestjs';
+import { Traceable } from '@amplication/opentelemetry-nestjs';
 
 @Traceable()
 @Injectable()
@@ -228,7 +228,7 @@ export class AppService {
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { TraceService } from '@overbit/opentelemetry-nestjs';
+import { TraceService } from '@amplication/opentelemetry-nestjs';
 
 @Injectable()
 export class AppService {
@@ -259,7 +259,7 @@ import {
   LoggerInjector,
   PipeInjector,
   ScheduleInjector,
-} from '@overbit/opentelemetry-nestjs';
+} from '@amplication/opentelemetry-nestjs';
 import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 
@@ -312,7 +312,7 @@ In some use cases, you need to trace instances of classes instanciated outside t
 In order to do so, use the `TraceWrapper.trace()` method to wrap every method of the instance in a new span as follow
 
 ```ts
-import { TraceWrapper } from '@overbit/opentelemetry-nestjs';
+import { TraceWrapper } from '@amplication/opentelemetry-nestjs';
 
 class MyClass {
   hello() {
@@ -336,7 +336,7 @@ const tracedInstance = TraceWrapper.trace(instance);
 Simple setup with Prometheus exporter, you need install [@opentelemetry/exporter-prometheus](https://www.npmjs.com/package/@opentelemetry/exporter-prometheus)
 
 ```ts
-import { OpenTelemetryModule } from '@overbit/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 
 @Module({
@@ -362,7 +362,7 @@ Also, you can find different exporters [here](https://opentelemetry.io/docs/js/e
 
 ```ts
 import { Module } from '@nestjs/common';
-import type { OpenTelemetryModule } from '@overbit/opentelemetry-nestjs';
+import type { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
@@ -409,7 +409,7 @@ import { Module } from '@nestjs/common';
 import type {
   OpenTelemetryModule,
   OpenTelemetryModuleDefaultConfig,
-} from '@overbit/opentelemetry-nestjs';
+} from '@amplication/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
