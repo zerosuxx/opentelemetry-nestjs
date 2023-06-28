@@ -2,6 +2,7 @@ export * from './Constants';
 export * from './OpenTelemetryModule';
 export * from './OpenTelemetryModuleAsyncOption';
 export * from './OpenTelemetryModuleDefaultConfig';
+export * from './OpenTelemetryModuleConfig.interface';
 
 // Trace
 export * from './Trace/Decorators/Span';
