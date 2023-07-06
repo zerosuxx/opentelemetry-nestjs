@@ -1,4 +1,4 @@
-import { Span, SpanStatusCode, trace } from '@opentelemetry/api';
+import { Span, SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { Constants } from '../Constants';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { TraceWrapperOptions } from './TraceWrapper.types';
@@ -46,6 +46,7 @@ export class TraceWrapper {
     prototype: Record<any, any>,
     traceName: string,
     attributes = {},
+    kind?: SpanKind,
   ): Record<any, any> {
     let method;
 
@@ -53,22 +54,27 @@ export class TraceWrapper {
       method = {
         [prototype.name]: async function (...args: unknown[]) {
           const tracer = trace.getTracer('default');
-          return await tracer.startActiveSpan(traceName, async (span) => {
-            span.setAttributes(attributes);
-            return prototype
-              .apply(this, args)
-              .catch((error) => TraceWrapper.recordException(error, span))
-              .finally(() => {
-                span.end();
-              });
-          });
+          return await tracer.startActiveSpan(
+            traceName,
+            { kind },
+            async (span) => {
+              span.setAttributes(attributes);
+              return prototype
+                .apply(this, args)
+                .catch((error) => TraceWrapper.recordException(error, span))
+                .finally(() => {
+                  span.end();
+                });
+            },
+          );
         },
       }[prototype.name];
     } else {
       method = {
         [prototype.name]: function (...args: unknown[]) {
           const tracer = trace.getTracer('default');
-          return tracer.startActiveSpan(traceName, (span) => {
+
+          return tracer.startActiveSpan(traceName, { kind }, (span) => {
             try {
               span.setAttributes(attributes);
               return prototype.apply(this, args);

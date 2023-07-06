@@ -7,7 +7,7 @@ import * as request from 'supertest';
 import { ControllerInjector } from './ControllerInjector';
 import waitForExpect from 'wait-for-expect';
 import { EventPattern, MessagePattern } from '@nestjs/microservices';
-import { SpanStatusCode } from '@opentelemetry/api';
+import { SpanKind, SpanStatusCode } from '@opentelemetry/api';
 
 describe('Tracing Controller Injector Test', () => {
   const exporter = new NoopSpanProcessor();
@@ -48,6 +48,7 @@ describe('Tracing Controller Injector Test', () => {
         expect(exporterSpy).toHaveBeenCalledWith(
           expect.objectContaining({
             name: 'Controller->HelloController.message',
+            kind: SpanKind.SERVER,
           }),
           expect.any(Object),
         ),
@@ -80,6 +81,7 @@ describe('Tracing Controller Injector Test', () => {
         expect(exporterSpy).toHaveBeenCalledWith(
           expect.objectContaining({
             name: 'Controller->HelloController.event',
+            kind: SpanKind.SERVER,
           }),
           expect.any(Object),
         ),
@@ -192,7 +194,10 @@ describe('Tracing Controller Injector Test', () => {
       //then
       await waitForExpect(() =>
         expect(exporterSpy).toHaveBeenCalledWith(
-          expect.objectContaining({ name: 'Controller->HelloController.hi' }),
+          expect.objectContaining({
+            name: 'Controller->HelloController.hi',
+            kind: SpanKind.SERVER,
+          }),
           expect.any(Object),
         ),
       );
