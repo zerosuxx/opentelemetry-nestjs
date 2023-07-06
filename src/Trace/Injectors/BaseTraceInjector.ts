@@ -3,7 +3,7 @@ import { Constants } from '../../Constants';
 import { MetadataScanner, ModulesContainer } from '@nestjs/core';
 import { Controller, Injectable } from '@nestjs/common/interfaces';
 import { PATH_METADATA } from '@nestjs/common/constants';
-import { PATTERN_HANDLER_METADATA } from '@nestjs/microservices/constants';
+import { PATTERN_METADATA } from '@nestjs/microservices/constants';
 import { TraceWrapper } from '../TraceWrapper';
 
 export class BaseTraceInjector {
@@ -36,7 +36,7 @@ export class BaseTraceInjector {
   }
 
   protected isMicroservice(prototype): boolean {
-    return Reflect.hasMetadata(PATTERN_HANDLER_METADATA, prototype);
+    return Reflect.hasMetadata(PATTERN_METADATA, prototype);
   }
 
   protected isAffected(prototype): boolean {
