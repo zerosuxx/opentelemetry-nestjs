@@ -17,7 +17,7 @@ import {
 import { containerDetector } from '@opentelemetry/resource-detector-container';
 
 import { Span } from '@opentelemetry/api';
-import { ClientRequest } from 'http';
+import { ClientRequest, IncomingMessage } from 'http';
 import { OpenTelemetryModuleConfig } from './OpenTelemetryModuleConfig.interface';
 
 export const NodeAutoInstrumentationsDefaultConfig = <InstrumentationConfigMap>{
@@ -34,8 +34,11 @@ export const NodeAutoInstrumentationsDefaultConfig = <InstrumentationConfigMap>{
   },
   '@opentelemetry/instrumentation-http': {
     requireParentforOutgoingSpans: true,
-    requestHook: (span: Span, request: ClientRequest) => {
-      span.updateName(`${request.method} ${request.path}`);
+    requestHook: (span: Span, request) => {
+      if (request instanceof ClientRequest)
+        span.updateName(`${request.method} ${request.path}`);
+      if (request instanceof IncomingMessage)
+        span.updateName(`${request.method} ${request.url}`);
     },
     enabled: true,
     ignoreIncomingPaths: ['/health', '/_health', '/healthz', 'healthcheck'],

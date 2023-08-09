@@ -110,6 +110,7 @@ export class AppModule {}
             <li><code>@opentelemetry/instrumentation-dns</code> and <code>@opentelemetry/instrumentation-net</code> have been disabled to reduce noise</li>
             <li> <code>@opentelemetry/instrumentation-http</code> ignores common health check endpoints and creates span with name <code>"HTTP_METHOD PATH"</code> </li>
             <li><code>@opentelemetry/instrumentation-fs</code>ignores operations on files under <code>node_modules</code></li>
+            <li><code>@opentelemetry/instrumentation-express</code>ignores operations on files under <code>node_modules</code></li>
          </td>
       <tr>
          <td> spanProcessor     </td>
