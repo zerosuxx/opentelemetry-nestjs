@@ -52,6 +52,8 @@
     "@opentelemetry/exporter-metrics-otlp-proto": "^0.41.2",
     "@opentelemetry/exporter-trace-otlp-http": "^0.41.2",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.41.2",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.41.2",
+    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.41.2",
     "@opentelemetry/propagator-b3": "^1.15.2",
     "@opentelemetry/propagator-jaeger": "^1.15.2",
     "@opentelemetry/resource-detector-container": "^0.3.0",
