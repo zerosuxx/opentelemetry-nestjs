@@ -19,6 +19,7 @@ import { containerDetector } from '@opentelemetry/resource-detector-container';
 import { Span } from '@opentelemetry/api';
 import { ClientRequest, IncomingMessage } from 'http';
 import { OpenTelemetryModuleConfig } from './OpenTelemetryModuleConfig.interface';
+import { GraphQLResolverInjector } from './Trace/Injectors/GraphQLResolverInjector';
 
 export const NodeAutoInstrumentationsDefaultConfig = <InstrumentationConfigMap>{
   '@opentelemetry/instrumentation-fs': {
@@ -64,6 +65,7 @@ export const OpenTelemetryModuleDefaultConfig = <OpenTelemetryModuleConfig>{
   serviceName: 'UNKNOWN',
   traceAutoInjectors: [
     ControllerInjector,
+    GraphQLResolverInjector,
     GuardInjector,
     EventEmitterInjector,
     ScheduleInjector,
