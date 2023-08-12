@@ -1,7 +1,7 @@
 import { Span, SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { Constants } from '../Constants';
-import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { TraceWrapperOptions } from './TraceWrapper.types';
+import { MetadataScanner } from '../MetaScanner';
 
 export class TraceWrapper {
   /**

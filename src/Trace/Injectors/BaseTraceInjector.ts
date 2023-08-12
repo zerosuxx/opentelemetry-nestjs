@@ -1,11 +1,12 @@
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Constants } from '../../Constants';
-import { MetadataScanner, ModulesContainer } from '@nestjs/core';
+import { ModulesContainer } from '@nestjs/core';
 import { Controller, Injectable } from '@nestjs/common/interfaces';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { PATTERN_METADATA } from '@nestjs/microservices/constants';
 import { TraceWrapper } from '../TraceWrapper';
-import { Span, SpanKind } from '@opentelemetry/api';
+import { SpanKind } from '@opentelemetry/api';
+import { MetadataScanner } from '../../MetaScanner';
 
 export class BaseTraceInjector {
   protected readonly metadataScanner: MetadataScanner = new MetadataScanner();

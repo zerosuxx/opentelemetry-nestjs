@@ -3,7 +3,7 @@ import { ModulesContainer } from '@nestjs/core';
 import {
   RESOLVER_NAME_METADATA,
   RESOLVER_TYPE_METADATA,
-} from '@nestjs/graphql';
+} from '@nestjs/graphql/dist/graphql.constants';
 import { BaseTraceInjector } from './BaseTraceInjector';
 import { Injector } from './Injector';
 
