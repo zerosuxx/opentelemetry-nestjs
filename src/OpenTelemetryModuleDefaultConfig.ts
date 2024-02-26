@@ -15,7 +15,7 @@ import {
   getNodeAutoInstrumentations,
 } from '@opentelemetry/auto-instrumentations-node';
 import { containerDetector } from '@opentelemetry/resource-detector-container';
-
+import { ExpressLayerType } from '@opentelemetry/instrumentation-express';
 import { Span } from '@opentelemetry/api';
 import { ClientRequest, IncomingMessage } from 'http';
 import { OpenTelemetryModuleConfig } from './OpenTelemetryModuleConfig.interface';
@@ -57,7 +57,13 @@ export const NodeAutoInstrumentationsDefaultConfig = <InstrumentationConfigMap>{
     depth: 2,
   },
   '@opentelemetry/instrumentation-express': {
-    enabled: true,
+    enabled: false,
+    ignoreLayers: ['middleware'],
+    ignoreLayersType: [
+      ExpressLayerType.MIDDLEWARE,
+      ExpressLayerType.ROUTER,
+      ExpressLayerType.REQUEST_HANDLER,
+    ],
   },
 };
 
