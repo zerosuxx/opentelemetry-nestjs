@@ -7,7 +7,10 @@ import { ConsoleLoggerInjector } from './Trace/Injectors/ConsoleLoggerInjector';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import { Resource } from '@opentelemetry/resources';
 import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { CompositePropagator } from '@opentelemetry/core';
+import {
+  CompositePropagator,
+  W3CTraceContextPropagator,
+} from '@opentelemetry/core';
 import { JaegerPropagator } from '@opentelemetry/propagator-jaeger';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
 import {
@@ -91,6 +94,7 @@ export const OpenTelemetryModuleDefaultConfig = <OpenTelemetryModuleConfig>{
   textMapPropagator: new CompositePropagator({
     propagators: [
       new JaegerPropagator(),
+      new W3CTraceContextPropagator(),
       new B3Propagator(),
       new B3Propagator({
         injectEncoding: B3InjectEncoding.MULTI_HEADER,
