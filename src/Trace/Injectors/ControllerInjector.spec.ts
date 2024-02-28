@@ -1,4 +1,5 @@
 import { Test } from '@nestjs/testing';
+import { Tracing } from '../../Tracing';
 import { OpenTelemetryModule } from '../../OpenTelemetryModule';
 import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { Controller, ForbiddenException, Get } from '@nestjs/common';
@@ -10,15 +11,16 @@ import { EventPattern, MessagePattern } from '@nestjs/microservices';
 import { SpanKind, SpanStatusCode } from '@opentelemetry/api';
 
 describe('Tracing Controller Injector Test', () => {
+  const sdkModule = OpenTelemetryModule.forRoot([ControllerInjector]);
+  let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
-  const exporterSpy = jest.spyOn(exporter, 'onStart');
-
-  const sdkModule = OpenTelemetryModule.forRoot({
-    spanProcessor: exporter,
-    traceAutoInjectors: [ControllerInjector],
-  });
+  Tracing.init({ serviceName: 'a', spanProcessor: exporter });
 
   beforeEach(() => {
+    exporterSpy = jest.spyOn(exporter, 'onStart');
+  });
+
+  afterEach(() => {
     exporterSpy.mockClear();
     exporterSpy.mockReset();
   });

@@ -18,9 +18,8 @@ import {
   getNodeAutoInstrumentations,
 } from '@opentelemetry/auto-instrumentations-node';
 import { containerDetector } from '@opentelemetry/resource-detector-container';
-import { ExpressLayerType } from '@opentelemetry/instrumentation-express';
 import { Span } from '@opentelemetry/api';
-import { ClientRequest, IncomingMessage } from 'http';
+import { IncomingMessage } from 'http';
 import { OpenTelemetryModuleConfig } from './OpenTelemetryModuleConfig.interface';
 import { GraphQLResolverInjector } from './Trace/Injectors/GraphQLResolverInjector';
 
@@ -28,24 +27,32 @@ export const NodeAutoInstrumentationsDefaultConfig = <InstrumentationConfigMap>{
   '@opentelemetry/instrumentation-fs': {
     requireParentSpan: true,
     enabled: true,
-    createHook: (funtionName, { args }) => {
-      // Ignore node_modules
+    createHook: (_, { args }) => {
       return !args[0].toString().indexOf('node_modules');
     },
-    endHook: (funtionName, { args, span }) => {
+    endHook: (_, { args, span }) => {
       span.setAttribute('file', args[0].toString());
     },
   },
   '@opentelemetry/instrumentation-http': {
     requireParentforOutgoingSpans: true,
-    requestHook: (span: Span, request) => {
-      if (request instanceof ClientRequest)
-        span.updateName(`${request.method} ${request.path}`);
-      if (request instanceof IncomingMessage)
-        span.updateName(`${request.method} ${request.url}`);
+    requestHook: (span: Span, request: IncomingMessage) => {
+      span.updateName(`${request.method} ${request.url}`);
     },
     enabled: true,
-    ignoreIncomingPaths: ['/health', '/_health', '/healthz', 'healthcheck'],
+    ignoreIncomingRequestHook: (request: IncomingMessage) => {
+      return (
+        ['/health', '/_health', '/healthz', 'healthcheck'].includes(
+          request.url,
+        ) || request.method === 'OPTIONS'
+      );
+    },
+  },
+  '@opentelemetry/instrumentation-graphql': {
+    enabled: true,
+    mergeItems: true,
+    ignoreResolveSpans: true,
+    ignoreTrivialResolveSpans: true,
   },
   '@opentelemetry/instrumentation-net': {
     enabled: false,
@@ -53,20 +60,8 @@ export const NodeAutoInstrumentationsDefaultConfig = <InstrumentationConfigMap>{
   '@opentelemetry/instrumentation-dns': {
     enabled: false,
   },
-  '@opentelemetry/instrumentation-graphql': {
-    enabled: true,
-    mergeItems: true,
-    ignoreTrivialResolveSpans: true,
-    depth: 2,
-  },
   '@opentelemetry/instrumentation-express': {
     enabled: false,
-    ignoreLayers: ['middleware'],
-    ignoreLayersType: [
-      ExpressLayerType.MIDDLEWARE,
-      ExpressLayerType.ROUTER,
-      ExpressLayerType.REQUEST_HANDLER,
-    ],
   },
 };
 

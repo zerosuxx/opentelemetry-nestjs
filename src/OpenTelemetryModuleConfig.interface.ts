@@ -4,5 +4,6 @@ import type { NodeSDKConfiguration } from '@opentelemetry/sdk-node';
 
 export interface OpenTelemetryModuleConfig
   extends Partial<NodeSDKConfiguration> {
+  serviceName: string;
   traceAutoInjectors?: Provider<Injector>[];
 }

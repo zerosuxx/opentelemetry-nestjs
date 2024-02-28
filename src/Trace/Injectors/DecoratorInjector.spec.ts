@@ -5,16 +5,19 @@ import { Controller, Get, Injectable } from '@nestjs/common';
 import { Span } from '../Decorators/Span';
 import * as request from 'supertest';
 import { Constants } from '../../Constants';
+import { Tracing } from '../../Tracing';
 
 describe('Tracing Decorator Injector Test', () => {
+  const sdkModule = OpenTelemetryModule.forRoot();
+  let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
-  const exporterSpy = jest.spyOn(exporter, 'onStart');
-
-  const sdkModule = OpenTelemetryModule.forRoot({
-    spanProcessor: exporter,
-  });
+  Tracing.init({ serviceName: 'a', spanProcessor: exporter });
 
   beforeEach(() => {
+    exporterSpy = jest.spyOn(exporter, 'onStart');
+  });
+
+  afterEach(() => {
     exporterSpy.mockClear();
     exporterSpy.mockReset();
   });

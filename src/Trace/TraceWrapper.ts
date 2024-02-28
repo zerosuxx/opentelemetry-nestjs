@@ -53,7 +53,7 @@ export class TraceWrapper {
     if (prototype.constructor.name === 'AsyncFunction') {
       method = {
         [prototype.name]: async function (...args: unknown[]) {
-          const tracer = trace.getTracer('default');
+          const tracer = trace.getTracer(Constants.TRACER_NAME);
           return await tracer.startActiveSpan(
             traceName,
             { kind },
@@ -72,7 +72,7 @@ export class TraceWrapper {
     } else {
       method = {
         [prototype.name]: function (...args: unknown[]) {
-          const tracer = trace.getTracer('default');
+          const tracer = trace.getTracer(Constants.TRACER_NAME);
 
           return tracer.startActiveSpan(traceName, { kind }, (span) => {
             try {
