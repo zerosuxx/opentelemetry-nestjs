@@ -1,9 +1,3 @@
-import { ControllerInjector } from './Trace/Injectors/ControllerInjector';
-import { GuardInjector } from './Trace/Injectors/GuardInjector';
-import { EventEmitterInjector } from './Trace/Injectors/EventEmitterInjector';
-import { ScheduleInjector } from './Trace/Injectors/ScheduleInjector';
-import { PipeInjector } from './Trace/Injectors/PipeInjector';
-import { ConsoleLoggerInjector } from './Trace/Injectors/ConsoleLoggerInjector';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import { Resource } from '@opentelemetry/resources';
 import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-base';
@@ -20,8 +14,7 @@ import {
 import { containerDetector } from '@opentelemetry/resource-detector-container';
 import { Span } from '@opentelemetry/api';
 import { IncomingMessage } from 'http';
-import { OpenTelemetryModuleConfig } from './OpenTelemetryModuleConfig.interface';
-import { GraphQLResolverInjector } from './Trace/Injectors/GraphQLResolverInjector';
+import { TracingConfig } from './TracingConfig.interface';
 
 export const NodeAutoInstrumentationsDefaultConfig = <InstrumentationConfigMap>{
   '@opentelemetry/instrumentation-fs': {
@@ -65,17 +58,8 @@ export const NodeAutoInstrumentationsDefaultConfig = <InstrumentationConfigMap>{
   },
 };
 
-export const OpenTelemetryModuleDefaultConfig = <OpenTelemetryModuleConfig>{
+export const TracingDefaultConfig = <TracingConfig>{
   serviceName: 'UNKNOWN',
-  traceAutoInjectors: [
-    ControllerInjector,
-    GraphQLResolverInjector,
-    GuardInjector,
-    EventEmitterInjector,
-    ScheduleInjector,
-    PipeInjector,
-    ConsoleLoggerInjector,
-  ],
   autoDetectResources: false,
   resourceDetectors: [containerDetector],
   contextManager: new AsyncLocalStorageContextManager(),

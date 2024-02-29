@@ -1,11 +1,11 @@
 import { NodeSDK } from '@opentelemetry/sdk-node';
-import { OpenTelemetryModuleConfig } from './OpenTelemetryModuleConfig.interface';
-import { OpenTelemetryModuleDefaultConfig } from './OpenTelemetryModuleDefaultConfig';
+import { TracingConfig } from './TracingConfig.interface';
+import { TracingDefaultConfig } from './TracingConfigDefault';
 
 export class Tracing {
-  static init(configuration: OpenTelemetryModuleConfig): void {
+  static init(configuration: TracingConfig): void {
     const otelSDK = new NodeSDK({
-      ...OpenTelemetryModuleDefaultConfig,
+      ...TracingDefaultConfig,
       ...configuration,
     });
     otelSDK.start();

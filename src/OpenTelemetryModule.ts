@@ -1,7 +1,7 @@
 import { DynamicModule } from '@nestjs/common';
 import { TraceService } from './Trace/TraceService';
 import { Constants } from './Constants';
-import { OpenTelemetryModuleDefaultConfig } from './OpenTelemetryModuleDefaultConfig';
+import { OpenTelemetryModuleDefaultConfig } from './OpenTelemetryModuleConfigDefault';
 import { FactoryProvider } from '@nestjs/common/interfaces/modules/provider.interface';
 import { OpenTelemetryModuleAsyncOption } from './OpenTelemetryModuleAsyncOption';
 import { DecoratorInjector } from './Trace/Injectors/DecoratorInjector';
@@ -12,10 +12,9 @@ import { OpenTelemetryModuleConfig } from './OpenTelemetryModuleConfig.interface
 
 export class OpenTelemetryModule {
   static forRoot(
-    traceAutoInjectors?: OpenTelemetryModuleConfig['traceAutoInjectors'],
+    traceAutoInjectors?: OpenTelemetryModuleConfig,
   ): DynamicModule {
-    const injectors =
-      traceAutoInjectors ?? OpenTelemetryModuleDefaultConfig.traceAutoInjectors;
+    const injectors = traceAutoInjectors ?? OpenTelemetryModuleDefaultConfig;
 
     return {
       global: true,
@@ -33,7 +32,7 @@ export class OpenTelemetryModule {
   }
 
   private static buildInjectors(
-    injectors: OpenTelemetryModuleConfig['traceAutoInjectors'] = [],
+    injectors: OpenTelemetryModuleConfig = [],
   ): FactoryProvider {
     return {
       provide: Constants.SDK_INJECTORS,
@@ -77,8 +76,7 @@ export class OpenTelemetryModule {
       provide: Constants.SDK_INJECTORS,
       useFactory: async (traceAutoInjectors, moduleRef: ModuleRef) => {
         const injectors =
-          traceAutoInjectors ??
-          OpenTelemetryModuleDefaultConfig.traceAutoInjectors;
+          traceAutoInjectors ?? OpenTelemetryModuleDefaultConfig;
 
         const decoratorInjector = await moduleRef.create(DecoratorInjector);
         await decoratorInjector.inject();
