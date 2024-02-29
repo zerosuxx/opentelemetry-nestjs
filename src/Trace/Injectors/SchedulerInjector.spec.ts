@@ -5,17 +5,19 @@ import { Injectable } from '@nestjs/common';
 import { Span } from '../Decorators/Span';
 import { Cron, Interval, Timeout } from '@nestjs/schedule';
 import { ScheduleInjector } from './ScheduleInjector';
+import { Tracing } from '../../Tracing';
 
 describe('Tracing Scheduler Injector Test', () => {
+  const sdkModule = OpenTelemetryModule.forRoot([ScheduleInjector]);
+  let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
-  const exporterSpy = jest.spyOn(exporter, 'onStart');
-
-  const sdkModule = OpenTelemetryModule.forRoot({
-    spanProcessor: exporter,
-    traceAutoInjectors: [ScheduleInjector],
-  });
+  Tracing.init({ serviceName: 'a', spanProcessor: exporter });
 
   beforeEach(() => {
+    exporterSpy = jest.spyOn(exporter, 'onStart');
+  });
+
+  afterEach(() => {
     exporterSpy.mockClear();
     exporterSpy.mockReset();
   });

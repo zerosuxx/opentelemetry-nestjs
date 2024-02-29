@@ -1,7 +1,10 @@
 export * from './Constants';
+export * from './Tracing';
+export * from './TracingConfigDefault';
+export * from './TracingConfig.interface';
 export * from './OpenTelemetryModule';
 export * from './OpenTelemetryModuleAsyncOption';
-export * from './OpenTelemetryModuleDefaultConfig';
+export * from './OpenTelemetryModuleConfigDefault';
 export * from './OpenTelemetryModuleConfig.interface';
 
 // Trace

@@ -78,6 +78,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 export class AppModule {}
 ```
 
+### Configuration types
+
+`Tracing.init()` takes [TracingConfig](https://github.com/amplication/opentelemetry-nestjs/blob/main/src/TracingConfig.interface.ts#L3) as a parameter, this type is inherited by [NodeSDKConfiguration](https://github.com/open-telemetry/opentelemetry-js/blob/745bd5c34d3961dc73873190adc763747e5e026d/experimental/packages/opentelemetry-sdk-node/src/types.ts#:~:text=NodeSDKConfiguration) so you can use same OpenTelemetry SDK parameter.
+
+`OpenTelemetryModule.forRoot()` takes [OpenTelemetryModuleConfig](https://github.com/amplication/opentelemetry-nestjs/blob/main/src/OpenTelemetryModuleConfig.interface.ts#L5)
+
 ### Default Parameters
 
 <table>
@@ -110,7 +116,8 @@ export class AppModule {}
             <li><code>@opentelemetry/instrumentation-dns</code> and <code>@opentelemetry/instrumentation-net</code> have been disabled to reduce noise</li>
             <li> <code>@opentelemetry/instrumentation-http</code> ignores common health check endpoints and creates span with name <code>"HTTP_METHOD PATH"</code> </li>
             <li><code>@opentelemetry/instrumentation-fs</code>ignores operations on files under <code>node_modules</code></li>
-            <li><code>@opentelemetry/instrumentation-express</code>ignores operations on files under <code>node_modules</code></li>
+            <li><code>@opentelemetry/instrumentation-express</code> has been disabled to reduce noise</li>
+            <li><code>@opentelemetry/instrumentation-graphql</code> has been configured to fit with nestjs (mergeItems: true, ignoreResolveSpans: true, ignoreTrivialResolveSpans: true) </li>
          </td>
       <tr>
          <td> spanProcessor     </td>
@@ -124,29 +131,40 @@ export class AppModule {}
       </tr>
 </table>
 
-`OpenTelemetryModule.forRoot()` takes [OpenTelemetryModuleConfig](https://github.com/MetinSeylan/Nestjs-OpenTelemetry/blob/main/src/OpenTelemetryModuleConfig.ts#L25) as a parameter, this type is inherited by [NodeSDKConfiguration](https://github.com/open-telemetry/opentelemetry-js/blob/745bd5c34d3961dc73873190adc763747e5e026d/experimental/packages/opentelemetry-sdk-node/src/types.ts#:~:text=NodeSDKConfiguration) so you can use same OpenTelemetry SDK parameter.
-
 ---
 
 ## Distributed Tracing
 
-Simple setup with Zipkin exporter, including with default trace instrumentations.
+Simple setup with Otel exporter, including with default trace instrumentations.
+
+The setup consists of two main changes in the `main.ts` (to initialise the provider) and in the nestjs app module.
 
 ```ts
-import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+// main.ts
+// at the very top of the file
+import { Tracing } from '@amplication/opentelemetry-nestjs';
 import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 
-@Module({
-  imports: [
-    OpenTelemetryModule.forRoot({
-      spanProcessor: new SimpleSpanProcessor(
-        new ZipkinExporter({
-          url: 'your-zipkin-url',
-        }),
-      ),
+Tracing.init({
+  serviceName: 'my-service',
+  spanProcessor: new SimpleSpanProcessor(
+    new ZipkinExporter({
+      url: 'your-zipkin-url',
     }),
-  ],
+  ),
+});
+
+import { NestFactory } from '@nestjs/core';
+
+// ....
+```
+
+```ts
+import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+
+@Module({
+  imports: [OpenTelemetryModule.forRoot()],
 })
 export class AppModule {}
 ```
@@ -261,26 +279,17 @@ import {
   PipeInjector,
   ScheduleInjector,
 } from '@amplication/opentelemetry-nestjs';
-import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
-import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 
 @Module({
   imports: [
-    OpenTelemetryModule.forRoot({
-      traceAutoInjectors: [
-        ControllerInjector,
-        GuardInjector,
-        EventEmitterInjector,
-        ScheduleInjector,
-        PipeInjector,
-        LoggerInjector,
-      ],
-      spanProcessor: new SimpleSpanProcessor(
-        new ZipkinExporter({
-          url: 'your-zipkin-url',
-        }),
-      ),
-    }),
+    OpenTelemetryModule.forRoot([
+      ControllerInjector,
+      GuardInjector,
+      EventEmitterInjector,
+      ScheduleInjector,
+      PipeInjector,
+      LoggerInjector,
+    ]),
   ],
 })
 export class AppModule {}
@@ -337,21 +346,21 @@ const tracedInstance = TraceWrapper.trace(instance);
 Simple setup with Prometheus exporter, you need install [@opentelemetry/exporter-prometheus](https://www.npmjs.com/package/@opentelemetry/exporter-prometheus)
 
 ```ts
-import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+// main.ts
+// at the very top of the file
+import { Tracing } from '@amplication/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 
-@Module({
-  imports: [
-    OpenTelemetryModule.forRoot({
-      serviceName: 'nestjs-opentelemetry-example',
-      metricReader: new PrometheusExporter({
-        endpoint: 'metrics',
-        port: 9464,
-      }),
-    }),
-  ],
-})
-export class AppModule {}
+Tracing.init({
+  serviceName: 'nestjs-opentelemetry-example',
+  metricReader: new PrometheusExporter({
+    endpoint: 'metrics',
+    port: 9464,
+  }),
+});
+
+import { NestFactory } from '@nestjs/core';
+// ....
 ```
 
 Now you can access Prometheus exporter with auto collected metrics [http://localhost:9464/metrics](http://localhost:9464/metrics).
@@ -362,8 +371,10 @@ Also, you can find different exporters [here](https://opentelemetry.io/docs/js/e
 ## Examples
 
 ```ts
-import { Module } from '@nestjs/common';
-import type { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+// main.ts
+// at the very top of the file
+import { Tracing } from '@amplication/opentelemetry-nestjs';
+import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
@@ -371,30 +382,39 @@ import { CompositePropagator } from '@opentelemetry/core';
 import { JaegerPropagator } from '@opentelemetry/propagator-jaeger';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
 
-@Module({
-  imports: [
-    OpenTelemetryModule.forRoot({
-      serviceName: 'myservice-opentelemetry-example',
-      metricReader: new PrometheusExporter({
-        endpoint: 'metrics',
-        port: 9464,
-      }),
-      spanProcessor: new BatchSpanProcessor(
-        new OTLPTraceExporter({
-          url: 'your-jaeger-url',
-        }),
-      ),
-      textMapPropagator: new CompositePropagator({
-        propagators: [
-          new JaegerPropagator(),
-          new B3Propagator(),
-          new B3Propagator({
-            injectEncoding: B3InjectEncoding.MULTI_HEADER,
-          }),
-        ],
-      }),
+Tracing.init({
+  serviceName: 'myservice-opentelemetry-example',
+  metricReader: new PrometheusExporter({
+    endpoint: 'metrics',
+    port: 9464,
+  }),
+  spanProcessor: new BatchSpanProcessor(
+    new OTLPTraceExporter({
+      url: 'your-jaeger-url',
     }),
-  ],
+  ),
+  textMapPropagator: new CompositePropagator({
+    propagators: [
+      new JaegerPropagator(),
+      new B3Propagator(),
+      new B3Propagator({
+        injectEncoding: B3InjectEncoding.MULTI_HEADER,
+      }),
+    ],
+  }),
+});
+
+import { NestFactory } from '@nestjs/core';
+// ....
+```
+
+```ts
+// ... app.module.ts
+import { Module } from '@nestjs/common';
+import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+
+@Module({
+  imports: [OpenTelemetryModule.forRoot()],
 })
 export class AppModule {}
 ```
@@ -406,11 +426,9 @@ For the integration with AWS X-Ray, follow the official instructions.
 i.e.
 
 ```ts
-import { Module } from '@nestjs/common';
-import type {
-  OpenTelemetryModule,
-  OpenTelemetryModuleDefaultConfig,
-} from '@amplication/opentelemetry-nestjs';
+// main.ts
+// at the very top of the file
+import { Tracing } from '@amplication/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
@@ -419,26 +437,92 @@ import { AWSXRayPropagator } from '@opentelemetry/propagator-aws-xray';
 import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray';
 import { AwsInstrumentation } from '@opentelemetry/instrumentation-aws-sdk';
 
+Tracing.init({
+  serviceName: 'myservice-opentelemetry-example',
+  metricReader: new PrometheusExporter({
+    endpoint: 'metrics',
+    port: 9464,
+  }),
+  instrumentations: [
+    ...OpenTelemetryModuleDefaultConfig.instrumentations,
+    new AwsInstrumentation({
+      suppressInternalInstrumentation: true,
+      sqsExtractContextPropagationFromPayload: true,
+    }),
+  ],
+  idGenerator: new AWSXRayIdGenerator(),
+  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({})),
+  textMapPropagator: new AWSXRayPropagator(),
+});
+
+import { NestFactory } from '@nestjs/core';
+// ....
+```
+
+```ts
+// ... app.module.ts
+import { Module } from '@nestjs/common';
+import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+
+@Module({
+  imports: [OpenTelemetryModule.forRoot()],
+})
+export class AppModule {}
+```
+
+## Migrating to v5
+
+In v5, the initialisation method for this library changed to support all the opentelemetry auto-instrumentation libraries like `@opentelemetry/instrumentation-graphql`.
+In v4 some of them where not working due to the fact that they were imported after the targeting library, `graphql` lib in the case of `@opentelemetry/instrumentation-graphql`.
+
+### v4
+
+```ts
+import { NestFactory } from '@nestjs/core';
+// ....
+```
+
+```ts
+// app.module.ts
+import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+import { ControllerInjector } from '@amplication/opentelemetry-nestjs';
+
 @Module({
   imports: [
     OpenTelemetryModule.forRoot({
-      serviceName: 'myservice-opentelemetry-example',
-      metricReader: new PrometheusExporter({
-        endpoint: 'metrics',
-        port: 9464,
-      }),
-      instrumentations: [
-        ...OpenTelemetryModuleDefaultConfig.instrumentations,
-        new AwsInstrumentation({
-          suppressInternalInstrumentation: true,
-          sqsExtractContextPropagationFromPayload: true,
-        }),
-      ],
-      idGenerator: new AWSXRayIdGenerator(),
-      spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({})),
-      textMapPropagator: new AWSXRayPropagator(),
+      serviceName: 'my-service',
+      spanProcessor: new SimpleSpanProcessor(),
+      traceAutoInjectors: [ControllerInjector],
     }),
   ],
+})
+export class AppModule {}
+```
+
+### v5
+
+```ts
+// main.ts
+// at the very top of the file
+import { Tracing } from '@amplication/opentelemetry-nestjs';
+import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+
+Tracing.init({
+  serviceName: 'my-service',
+  spanProcessor: new SimpleSpanProcessor(),
+});
+
+import { NestFactory } from '@nestjs/core';
+// ....
+```
+
+```ts
+// app.module.ts
+import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+import { ControllerInjector } from '@amplication/opentelemetry-nestjs';
+
+@Module({
+  imports: [OpenTelemetryModule.forRoot([ControllerInjector])],
 })
 export class AppModule {}
 ```

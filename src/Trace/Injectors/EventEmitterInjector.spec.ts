@@ -5,17 +5,19 @@ import { Injectable } from '@nestjs/common';
 import { Span } from '../Decorators/Span';
 import { EventEmitterInjector } from './EventEmitterInjector';
 import { OnEvent } from '@nestjs/event-emitter';
+import { Tracing } from '../../Tracing';
 
 describe('Tracing Event Emitter Injector Test', () => {
+  const sdkModule = OpenTelemetryModule.forRoot([EventEmitterInjector]);
+  let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
-  const exporterSpy = jest.spyOn(exporter, 'onStart');
-
-  const sdkModule = OpenTelemetryModule.forRoot({
-    spanProcessor: exporter,
-    traceAutoInjectors: [EventEmitterInjector],
-  });
+  Tracing.init({ serviceName: 'a', spanProcessor: exporter });
 
   beforeEach(() => {
+    exporterSpy = jest.spyOn(exporter, 'onStart');
+  });
+
+  afterEach(() => {
     exporterSpy.mockClear();
     exporterSpy.mockReset();
   });
