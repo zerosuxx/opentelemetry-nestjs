@@ -1,11 +1,13 @@
-name: Manual Publish Package to npmjs
+name: Manual Publish Package
+run-name: Version ${{ github.event.inputs.version }}
+
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       version:
         type: string
         required: true
-        description: 'The version to publish. Must be a valid semver version.'
+        description: 'The version to publish. Must be a valid semver version. i.e. 1.0.0-beta.1'
 jobs:
   manual-release:
     runs-on: ubuntu-latest
@@ -18,8 +20,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 'lts/*'
-      - run: npm ci
-      - run: sed -i 's/0.0.0-development/${{ inputs.version }}/' ./package.json
-      - run: npm publish --access public --tag beta
+      - name: Install
+        run: npm ci
+      - name: Set version
+        run: npm version ${{ inputs.version }} --no-git-tag-version
+      - name: Release
+        run: npm publish --access public --tag beta
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
