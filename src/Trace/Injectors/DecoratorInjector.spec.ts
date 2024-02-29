@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { OpenTelemetryModule } from '../../OpenTelemetryModule';
-import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { Controller, Get, Injectable } from '@nestjs/common';
 import { Span } from '../Decorators/Span';
 import * as request from 'supertest';

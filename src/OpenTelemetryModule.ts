@@ -7,7 +7,7 @@ import { OpenTelemetryModuleAsyncOption } from './OpenTelemetryModuleAsyncOption
 import { DecoratorInjector } from './Trace/Injectors/DecoratorInjector';
 import { ModuleRef } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { Tracer } from '@opentelemetry/sdk-trace-base';
+import { Tracer } from '@opentelemetry/sdk-trace-node';
 import { OpenTelemetryModuleConfig } from './OpenTelemetryModuleConfig.interface';
 
 export class OpenTelemetryModule {

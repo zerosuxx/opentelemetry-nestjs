@@ -1,6 +1,6 @@
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import { Resource } from '@opentelemetry/resources';
-import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import {
   CompositePropagator,
   W3CTraceContextPropagator,

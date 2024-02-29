@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { OpenTelemetryModule } from '../../OpenTelemetryModule';
-import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { Injectable } from '@nestjs/common';
 import { Constants } from '../../Constants';
 import { Resolver, Query, Subscription, Mutation } from '@nestjs/graphql';

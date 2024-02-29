@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { OpenTelemetryModule } from '../../OpenTelemetryModule';
-import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { Controller, Get, PipeTransform, UsePipes } from '@nestjs/common';
 import { PipeInjector } from './PipeInjector';
 import { PIPES_METADATA } from '@nestjs/common/constants';

@@ -144,7 +144,7 @@ The setup consists of two main changes in the `main.ts` (to initialise the provi
 // at the very top of the file
 import { Tracing } from '@amplication/opentelemetry-nestjs';
 import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
-import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 
 Tracing.init({
   serviceName: 'my-service',
@@ -227,7 +227,7 @@ In an advanced use cases, you need to access the native OpenTelemetry Trace prov
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { Tracer } from '@opentelemetry/sdk-trace-base';
+import { Tracer } from '@opentelemetry/sdk-trace-node';
 
 @Injectable()
 export class AppService {
@@ -377,7 +377,7 @@ import { Tracing } from '@amplication/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
-import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { CompositePropagator } from '@opentelemetry/core';
 import { JaegerPropagator } from '@opentelemetry/propagator-jaeger';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
@@ -431,7 +431,7 @@ i.e.
 import { Tracing } from '@amplication/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
-import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { CompositePropagator } from '@opentelemetry/core';
 import { AWSXRayPropagator } from '@opentelemetry/propagator-aws-xray';
 import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray';
@@ -505,7 +505,7 @@ export class AppModule {}
 // main.ts
 // at the very top of the file
 import { Tracing } from '@amplication/opentelemetry-nestjs';
-import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 
 Tracing.init({
   serviceName: 'my-service',
