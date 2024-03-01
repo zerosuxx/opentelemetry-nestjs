@@ -50,6 +50,9 @@ export const NodeAutoInstrumentationsDefaultConfig = <InstrumentationConfigMap>{
   '@opentelemetry/instrumentation-net': {
     enabled: false,
   },
+  '@opentelemetry/instrumentation-nestjs-core': {
+    enabled: false,
+  },
   '@opentelemetry/instrumentation-dns': {
     enabled: false,
   },

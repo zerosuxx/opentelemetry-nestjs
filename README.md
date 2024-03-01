@@ -118,6 +118,7 @@ export class AppModule {}
             <li><code>@opentelemetry/instrumentation-fs</code>ignores operations on files under <code>node_modules</code></li>
             <li><code>@opentelemetry/instrumentation-express</code> has been disabled to reduce noise</li>
             <li><code>@opentelemetry/instrumentation-graphql</code> has been configured to fit with nestjs (mergeItems: true, ignoreResolveSpans: true, ignoreTrivialResolveSpans: true) </li>
+            <li><code>@opentelemetry/instrumentation-nestjs-core</code> has been disabled to reduce noise being redundant  </li>
          </td>
       <tr>
          <td> spanProcessor     </td>
