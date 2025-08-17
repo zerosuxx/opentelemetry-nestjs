@@ -12,7 +12,7 @@ describe('Tracing Guard Injector Test', () => {
   const sdkModule = OpenTelemetryModule.forRoot([GuardInjector]);
   let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
-  Tracing.init({ serviceName: 'a', spanProcessor: exporter });
+  Tracing.init({ serviceName: 'a', spanProcessors: [exporter] });
 
   beforeEach(() => {
     exporterSpy = jest.spyOn(exporter, 'onStart');

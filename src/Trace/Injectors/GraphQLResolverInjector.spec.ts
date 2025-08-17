@@ -10,7 +10,7 @@ describe('Tracing Decorator Injector Test', () => {
   const sdkModule = OpenTelemetryModule.forRoot();
   let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
-  Tracing.init({ serviceName: 'a', spanProcessor: exporter });
+  Tracing.init({ serviceName: 'a', spanProcessors: [exporter] });
 
   beforeEach(() => {
     exporterSpy = jest.spyOn(exporter, 'onStart');

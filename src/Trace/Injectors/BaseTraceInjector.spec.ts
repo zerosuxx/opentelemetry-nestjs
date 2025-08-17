@@ -1,7 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { Tracing } from '../../Tracing';
 import { OpenTelemetryModule } from '../../OpenTelemetryModule';
-import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
+import {
+  NoopSpanProcessor,
+  Span as OtelSpan,
+} from '@opentelemetry/sdk-trace-node';
 import { Controller, Get, Injectable } from '@nestjs/common';
 import { Span } from '../Decorators/Span';
 import * as request from 'supertest';
@@ -14,7 +17,7 @@ describe('Base Trace Injector Test', () => {
   beforeEach(() => {
     const exporter = new NoopSpanProcessor();
     exporterSpy = jest.spyOn(exporter, 'onStart');
-    Tracing.init({ serviceName: 'a', spanProcessor: exporter });
+    Tracing.init({ serviceName: 'a', spanProcessors: [exporter] });
   });
 
   afterEach(() => {
@@ -55,10 +58,15 @@ describe('Base Trace Injector Test', () => {
     await request(app.getHttpServer()).get('/hello').send().expect(200);
 
     //then
-    const [[parent], [childOfParent], [childOfChild]] = exporterSpy.mock.calls;
-    expect(parent.parentSpanId).toBeUndefined();
-    expect(childOfParent.parentSpanId).toBe(parent.spanContext().spanId);
-    expect(childOfChild.parentSpanId).toBe(childOfParent.spanContext().spanId);
+    const [[parent], [childOfParent], [childOfChild]] = exporterSpy.mock
+      .calls as OtelSpan[][];
+    expect(parent.parentSpanContext?.spanId).toBeUndefined();
+    expect(childOfParent.parentSpanContext?.spanId).toBe(
+      parent.spanContext().spanId,
+    );
+    expect(childOfChild.parentSpanContext?.spanId).toBe(
+      childOfParent.spanContext().spanId,
+    );
 
     await app.close();
   });
