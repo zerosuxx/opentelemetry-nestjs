@@ -7,7 +7,6 @@ import { OpenTelemetryModuleAsyncOption } from './OpenTelemetryModuleAsyncOption
 import { DecoratorInjector } from './Trace/Injectors/DecoratorInjector';
 import { ModuleRef } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { Tracer } from '@opentelemetry/sdk-trace-node';
 import { OpenTelemetryModuleConfig } from './OpenTelemetryModuleConfig.interface';
 
 export class OpenTelemetryModule {
@@ -25,9 +24,8 @@ export class OpenTelemetryModule {
         TraceService,
         DecoratorInjector,
         this.buildInjectors(injectors),
-        this.buildTracer(),
       ],
-      exports: [TraceService, Tracer],
+      exports: [TraceService],
     };
   }
 
@@ -60,14 +58,13 @@ export class OpenTelemetryModule {
       providers: [
         TraceService,
         this.buildAsyncInjectors(),
-        this.buildTracer(),
         {
           provide: Constants.SDK_CONFIG,
           useFactory: configuration.useFactory,
           inject: configuration.inject,
         },
       ],
-      exports: [TraceService, Tracer],
+      exports: [TraceService],
     };
   }
 
@@ -89,14 +86,6 @@ export class OpenTelemetryModule {
         return {};
       },
       inject: [Constants.SDK_CONFIG, ModuleRef],
-    };
-  }
-
-  private static buildTracer() {
-    return {
-      provide: Tracer,
-      useFactory: (traceService: TraceService) => traceService.getTracer(),
-      inject: [TraceService],
     };
   }
 }
