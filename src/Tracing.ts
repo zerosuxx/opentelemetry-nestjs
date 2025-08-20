@@ -7,16 +7,20 @@ import {
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 
 export class Tracing {
-  static init(
-    configuration: TracingConfig,
-    loadAutoInstrumentations = true,
-  ): void {
-    const instrumentations = loadAutoInstrumentations
-      ? getNodeAutoInstrumentations(NodeAutoInstrumentationsDefaultConfig)
-      : [];
+  static init(configuration: TracingConfig): void {
     const otelSDK = new NodeSDK({
       ...TracingDefaultConfig,
-      instrumentations,
+      instrumentations: getNodeAutoInstrumentations(
+        NodeAutoInstrumentationsDefaultConfig,
+      ),
+      ...configuration,
+    });
+    otelSDK.start();
+  }
+
+  static initWithoutAutoInstrumentations(configuration: TracingConfig): void {
+    const otelSDK = new NodeSDK({
+      ...TracingDefaultConfig,
       ...configuration,
     });
     otelSDK.start();
