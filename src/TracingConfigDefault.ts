@@ -7,10 +7,7 @@ import {
 } from '@opentelemetry/core';
 import { JaegerPropagator } from '@opentelemetry/propagator-jaeger';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
-import {
-  InstrumentationConfigMap,
-  getNodeAutoInstrumentations,
-} from '@opentelemetry/auto-instrumentations-node';
+import { InstrumentationConfigMap } from '@opentelemetry/auto-instrumentations-node';
 import { containerDetector } from '@opentelemetry/resource-detector-container';
 import { Span } from '@opentelemetry/api';
 import { IncomingMessage } from 'http';
@@ -69,9 +66,7 @@ export const TracingDefaultConfig = <TracingConfig>{
   resource: resourceFromAttributes({
     lib: '@overbit/opentelemetry-nestjs',
   }),
-  instrumentations: [
-    getNodeAutoInstrumentations(NodeAutoInstrumentationsDefaultConfig),
-  ],
+  instrumentations: [],
   spanProcessors: [new NoopSpanProcessor()],
   textMapPropagator: new CompositePropagator({
     propagators: [
